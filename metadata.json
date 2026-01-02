@@ -1,0 +1,9 @@
+{
+  "name": "MediMinder AI",
+  "description": "A comprehensive medicine reminder and health guidance app featuring AI chatbot support, adherence tracking, and emergency service booking.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation",
+    "camera"
+  ]
+}
