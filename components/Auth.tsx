@@ -19,22 +19,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     onLogin({ name: formData.name || 'User', email: formData.email, isLoggedIn: true });
   };
 
-  // Creator data without images, keeping the unique AI styles
-  const creators = [
-    { 
-      name: 'Arijit Sinha', 
-      style: 'from-blue-400 via-cyan-300 to-indigo-500'
-    },
-    { 
-      name: 'Anam Khandakar', 
-      style: 'from-pink-400 via-rose-300 to-purple-500'
-    },
-    { 
-      name: 'Arunjit Jana', 
-      style: 'from-emerald-400 via-teal-300 to-blue-500'
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 overflow-x-hidden selection:bg-pink-200">
       {/* Dynamic Navigation */}
@@ -183,36 +167,15 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           </div>
         </div>
 
-        {/* Creator Acknowledgements & Gratitude Section */}
-        <div className="max-w-6xl mx-auto pb-12 pt-12 border-t border-white/5">
-          <div className="flex flex-col items-center text-center space-y-12">
-            <div className="space-y-10 w-full">
-              <p className="text-[11px] font-black uppercase tracking-[0.5em] text-slate-500 mb-8">System Architects</p>
-              
-              <div className="flex flex-wrap justify-center gap-12 md:gap-24">
-                {creators.map((creator) => (
-                  <div key={creator.name} className="flex flex-col items-center group relative">
-                    {/* AI Styled Name Typography */}
-                    <div className="relative z-10 flex flex-col items-center">
-                      <span className={`text-lg md:text-xl font-black tracking-[0.15em] uppercase text-transparent bg-clip-text bg-gradient-to-r ${creator.style} drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-500 group-hover:tracking-[0.25em]`}>
-                        {creator.name}
-                      </span>
-                      <div className={`h-0.5 w-0 group-hover:w-full bg-gradient-to-r ${creator.style} mt-2 transition-all duration-500 opacity-60 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.3)]`}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {/* Gratitude Section */}
+        <div className="max-w-6xl mx-auto pb-12 pt-12 border-t border-white/5 flex justify-center">
+          <div className="flex items-center gap-4 p-6 bg-white/[0.03] backdrop-blur-xl rounded-[2.5rem] border border-white/10 max-w-2xl group hover:bg-white/[0.07] transition-all shadow-3xl hover:border-blue-500/30">
+            <div className="p-3 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-2xl shadow-xl shadow-pink-900/40 transform group-hover:scale-110 group-hover:rotate-6 transition-transform">
+              <Heart className="w-6 h-6 text-white fill-white animate-pulse" />
             </div>
-
-            {/* Gratitude Message */}
-            <div className="flex items-center gap-4 p-6 bg-white/[0.03] backdrop-blur-xl rounded-[2.5rem] border border-white/10 max-w-2xl group hover:bg-white/[0.07] transition-all shadow-3xl hover:border-blue-500/30">
-              <div className="p-3 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-2xl shadow-xl shadow-pink-900/40 transform group-hover:scale-110 group-hover:rotate-6 transition-transform">
-                <Heart className="w-6 h-6 text-white fill-white animate-pulse" />
-              </div>
-              <p className="text-sm md:text-base font-bold text-slate-200 leading-relaxed text-left">
-                We thanks to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 font-black tracking-tighter drop-shadow-sm">Google tools</span> for making this site so beautiful.
-              </p>
-            </div>
+            <p className="text-sm md:text-base font-bold text-slate-200 leading-relaxed text-left">
+              Powered by <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 font-black tracking-tighter drop-shadow-sm">Google Gemini</span> for intelligent health guidance.
+            </p>
           </div>
         </div>
 

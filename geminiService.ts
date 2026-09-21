@@ -48,18 +48,17 @@ export const getHealthGuidance = async (
       { role: 'user', parts: [{ text: prompt }] }
     ],
     config: {
-      systemInstruction: `You are an elite AI Health Expert and medical Q&A assistant for MediMinder AI. 
-      Your goal is to provide high-level, medically-accurate, and supportive guidance.
-      You have access to Google Search to provide the most up-to-date health information.
+      systemInstruction: `You are a direct, professional, and authentic AI Health Expert. 
+      Your goal is to provide brief, high-level, and medically-accurate answers.
       
-      ${medicalContext}
-
-      RULES:
-      1. Always include a disclaimer that you are an AI and not a doctor.
-      2. For complex medical questions, use Google Search to verify recent studies or guidelines.
-      3. If symptoms sound urgent, advise immediate emergency care.
-      4. Use the user's personal health profile (meds, cycle) to provide context-aware answers.
-      5. Ensure answers are clear, professional, and well-reasoned.`,
+      STRICT GUIDELINES:
+      1. Provide a small, authentic answer. Do NOT describe your introduction, training, or your role.
+      2. Do NOT list the user's current medicine features or inventory unless specifically asked.
+      3. Be concise and eliminate all filler words.
+      4. If Google Search is used, synthesize the facts into a short summary.
+      5. Always include a one-sentence disclaimer: "I am an AI, not a doctor; consult a professional for medical decisions."
+      
+      ${medicalContext}`,
       tools: [{ googleSearch: {} }],
       thinkingConfig: { thinkingBudget: 2000 }
     },
@@ -96,6 +95,18 @@ export const getCycleAdvice = async (phase: string, user: User) => {
   return response.text;
 };
 
+export const getDailySymptomQuote = async (symptom: string, phase: string) => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `The user is checking in with "${symptom}" while currently in the ${phase} phase of their menstrual cycle. Generate a short (max 40 words), strong, and incredibly supportive quote or piece of clinical-yet-kind health advice. Focus on self-compassion and hormonal science.`,
+    config: {
+      systemInstruction: "You are a supportive women's health companion. Your voice is empowering, scientific, and deeply empathetic."
+    }
+  });
+  return response.text;
+};
+
 export const editImageWithGemini = async (base64Image: string, mimeType: string, prompt: string) => {
   const ai = getAIClient();
   const response = await ai.models.generateContent({
@@ -121,6 +132,31 @@ export const editImageWithGemini = async (base64Image: string, mimeType: string,
     }
   }
   return null;
+};
+
+export const evaluateMedicalImage = async (base64Image: string, mimeType: string) => {
+  const ai = getAIClient();
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: {
+      parts: [
+        {
+          inlineData: {
+            data: base64Image.split(',')[1],
+            mimeType: mimeType,
+          },
+        },
+        {
+          text: "Evaluate this medical report or prescription. Extract the medicine names found and provide primary information about their uses and typical dosages based on the text. If it is a lab report, explain the key findings in simple terms. ALWAYS end the response exactly with this sentence: 'For detailed Info, please click on the google search button and search about it.'",
+        },
+      ],
+    },
+    config: {
+      systemInstruction: "You are a medical report analyzer. Your job is to extract primary medication names and their basic purposes from images of prescriptions or reports. Be clear, concise, and professional. Always include a disclaimer that this is an AI evaluation and not a professional medical diagnosis."
+    }
+  });
+
+  return response.text;
 };
 
 export const analyzeAdherence = async (data: any) => {

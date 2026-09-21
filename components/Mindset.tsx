@@ -5,7 +5,6 @@ import {
   Wind, 
   Music, 
   Volume2, 
-  VolumeX, 
   Play, 
   Pause, 
   Sparkles, 
@@ -19,7 +18,9 @@ import {
   ChevronRight,
   Youtube,
   ExternalLink,
-  Headphones
+  Headphones,
+  History,
+  Trash2
 } from 'lucide-react';
 import { getMeditationGuidance } from '../geminiService';
 
@@ -65,6 +66,12 @@ const QUOTES = [
   "Slow down. Calm is a superpower."
 ];
 
+interface GratitudeEntry {
+  id: string;
+  text: string;
+  timestamp: number;
+}
+
 const Mindset: React.FC = () => {
   const [activeSound, setActiveSound] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -73,6 +80,13 @@ const Mindset: React.FC = () => {
   const [mood, setMood] = useState('Restless');
   const [breathingPhase, setBreathingPhase] = useState<'In' | 'Hold' | 'Out'>('In');
   const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  
+  // Gratitude states
+  const [gratitudeInput, setGratitudeInput] = useState('');
+  const [entries, setEntries] = useState<GratitudeEntry[]>(() => {
+    const saved = localStorage.getItem('gratitude_entries');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -86,6 +100,10 @@ const Mindset: React.FC = () => {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('gratitude_entries', JSON.stringify(entries));
+  }, [entries]);
 
   const toggleSound = (soundId: string, url: string) => {
     if (activeSound === soundId) {
@@ -117,6 +135,21 @@ const Mindset: React.FC = () => {
     } finally {
       setLoadingMed(false);
     }
+  };
+
+  const handleSaveGratitude = () => {
+    if (!gratitudeInput.trim()) return;
+    const newEntry: GratitudeEntry = {
+      id: Math.random().toString(36).substring(2, 9),
+      text: gratitudeInput.trim(),
+      timestamp: Date.now()
+    };
+    setEntries(prev => [newEntry, ...prev].slice(0, 50)); // Keep last 50
+    setGratitudeInput('');
+  };
+
+  const deleteEntry = (id: string) => {
+    setEntries(prev => prev.filter(e => e.id !== id));
   };
 
   return (
@@ -269,20 +302,53 @@ const Mindset: React.FC = () => {
       </section>
 
       {/* Mindful Habits Check-in */}
-      <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-3 mb-6">
+      <section className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[3rem] border border-slate-100 dark:border-slate-800 space-y-6">
+        <div className="flex items-center gap-3">
           <Heart className="w-5 h-5 text-rose-500" />
           <h4 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">Gratitude Check</h4>
         </div>
         <div className="space-y-4">
            <textarea 
+             value={gratitudeInput}
+             onChange={(e) => setGratitudeInput(e.target.value)}
              placeholder="Write one thing you're grateful for today..."
-             className="w-full bg-white dark:bg-slate-800 border-none rounded-2xl px-5 py-4 text-sm font-medium dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none transition-all"
+             className="w-full bg-white dark:bg-slate-800 border-none rounded-2xl px-5 py-4 text-sm font-medium dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none transition-all shadow-sm"
            />
-           <button className="text-[10px] font-black uppercase tracking-widest text-indigo-600 flex items-center gap-2">
+           <button 
+             onClick={handleSaveGratitude}
+             disabled={!gratitudeInput.trim()}
+             className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+           >
               Save Entry <ChevronRight className="w-3 h-3" />
            </button>
         </div>
+
+        {entries.length > 0 && (
+          <div className="pt-6 space-y-4">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <History className="w-3 h-3" />
+              <span>Recent Gratitude</span>
+            </div>
+            <div className="space-y-3">
+              {entries.slice(0, 3).map((entry) => (
+                <div key={entry.id} className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700 group flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm text-slate-700 dark:text-slate-300 font-medium">"{entry.text}"</p>
+                    <p className="text-[9px] text-slate-400 mt-1 font-bold uppercase tracking-tighter">
+                      {new Date(entry.timestamp).toLocaleDateString()} • {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => deleteEntry(entry.id)}
+                    className="p-1.5 text-slate-300 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

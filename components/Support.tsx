@@ -136,7 +136,9 @@ const Support: React.FC = () => {
         
         <div className="space-y-4">
           <a 
-            href="mailto:arijitsinha2003@gmail.com" 
+            href="https://mail.google.com/" 
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex flex-col items-center group"
           >
             <span className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-black text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-100 mb-2">
